@@ -4,6 +4,10 @@ module.exports = {
   loadPriority:  120,
   initialize: function(api, next){
 
+    if(api.config.logger.colors){
+      winston.addColors(api.config.logger.colors);
+    }
+
     var transports = [], i;
     for(i in api.config.logger.transports){
       var t = api.config.logger.transports[i];
@@ -14,17 +18,13 @@ module.exports = {
       }
     }
 
-    api.logger = new (winston.Logger)({ transports: transports });
-
     if(api.config.logger.levels){
-      api.logger.setLevels(api.config.logger.levels);
+      api.logger = new (winston.Logger)({ transports: transports, levels: api.config.logger.levels });
     }else{
-      api.logger.setLevels(winston.config.syslog.levels);
+      api.logger = new (winston.Logger)({ transports: transports, levels: winston.config.syslog.levels });
     }
 
-    if(api.config.logger.colors){
-      winston.addColors(api.config.logger.colors);
-    }
+
 
     api.log = function(message, severity){
       if(severity === undefined || severity === null || api.logger.levels[severity] === undefined){ severity = 'info' }
