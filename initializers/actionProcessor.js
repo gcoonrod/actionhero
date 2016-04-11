@@ -283,20 +283,23 @@ module.exports = {
           self.completeAction('validator_errors');
         }else if(self.toProcess === true && !error){
           var timeout;
+          var handled = false;
           var runCallback = function(error){
             if(timeout) clearTimeout(timeout);
-            if(error){
-              self.completeAction(error);
-            }else{
-              self.postProcessAction(function(error){
+            if(!handled){
+              if(error){
                 self.completeAction(error);
-              });
+              }else{
+                self.postProcessAction(function(error){
+                  self.completeAction(error);
+                });
+              }
             }
           };
 
           if (self.actionTemplate.timeout !== null && self.actionTemplate.timeout !== undefined){
               timeout = setTimeout(function(){
-                  runCallback = function(){};
+                  handled = true;
                   self.completeAction(new Error("Action did not complete before the set timeout!"));
               }, self.actionTemplate.timeout)
           }
