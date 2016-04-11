@@ -6,7 +6,7 @@ module.exports = {
   initialize: function(api, next){
 
     api.actionProcessor = function(connection, callback){
-      if(!connection){ 
+      if(!connection){
         throw new Error('data.connection is required');
       }
 
@@ -49,9 +49,9 @@ module.exports = {
       var error = null;
       self.actionStatus = String(status);
 
-      if(self.actionDomain){ self.actionDomain.exit(); }  
+      if(self.actionDomain){ self.actionDomain.exit(); }
 
-      if(status instanceof Error){    
+      if(status instanceof Error){
         error = status;
       }else if(status === 'server_error'){
         error = api.config.errors.serverErrorMessage();
@@ -98,8 +98,8 @@ module.exports = {
       var logLevel = 'info';
       if(self.actionTemplate && self.actionTemplate.logLevel){
         logLevel = self.actionTemplate.logLevel;
-      }      
-      
+      }
+
       var filteredParams = {}
       for(var i in self.params){
         if(api.config.general.filteredParams && api.config.general.filteredParams.indexOf(i) >= 0){
@@ -282,7 +282,9 @@ module.exports = {
         }else if(self.validatorErrors.length > 0){
           self.completeAction('validator_errors');
         }else if(self.toProcess === true && !error){
-          self.actionTemplate.run(api, self, function(error){
+          var timeout;
+          var runCallback = function(error){
+            if(timeout) clearTimeout(timeout);
             if(error){
               self.completeAction(error);
             }else{
@@ -290,7 +292,15 @@ module.exports = {
                 self.completeAction(error);
               });
             }
-          });
+          };
+
+          if (self.actionTemplate.timeout !== null && self.actionTemplate.timeout !== undefined){
+              timeout = setTimeout(function(){
+                  runCallback = function(){};
+                  self.completeAction(new Error("Action did not complete before the set timeout!"));
+              }, self.actionTemplate.timeout)
+          }
+          self.actionTemplate.run(api, self, runCallback);
         }else{
           self.completeAction();
         }
