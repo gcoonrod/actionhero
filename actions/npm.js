@@ -4,8 +4,8 @@ const spawn = require('child_process').spawn;
 var bluebird;
 
 exports.action = {
-  name:                   'pullup',
-  description:            'pullup',
+  name:                   'npm',
+  description:            'npm',
   blockedConnectionTypes: [],
   outputExample:          {},
   matchExtensionMimeType: false,
@@ -13,11 +13,17 @@ exports.action = {
   toDocument:             true,
   middleware:             [],
 
-  inputs: {},
+  inputs: {
+    "package": {
+      required: true
+    }
+  },
 
   run: function(api, data, next) {
     let error = null;
-    const install = spawn('npm', ['install', '--save', 'bluebird']);
+
+    api.log("Attemping to npm install " + data.params.package, "info");
+    const install = spawn('npm', ['install', '--save', data.params.package]);
 
     install.stdout.on('data', (data) => {
       api.log("stdout: ", "info", data.toString('ascii'));

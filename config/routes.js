@@ -30,7 +30,7 @@ exports['default'] = {
 
       get: [
         { path: '/hotreload', action: 'hotreload' }, // (GET) /api/users
-        { path: '/pullup', action: 'pullup' },
+        { path: '/npm/:package', action: 'npm' },
       ],
 
     };
