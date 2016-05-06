@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="content-language" content="en" />
+    <meta name="description" content="actionhero.js" />
+    <link rel="stylesheet" href="/public/css/actionhero.css" type="text/css">
+    <style type="text/css">
+  
+    textarea, input, button {
+      color: #000;
+      overflow: visible;
+    }
+    </style>
+    <link rel="icon" href="/public/favicon.ico">
+    <title>actionhero.js</title>
+
+    <script src="/public/javascript/actionheroClient.js"></script>
+
+  </head>
+
+  <body>
+
+  <section class="intro">
+    <div class="intro-body">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 col-md-offset-2">
+            <h1 class="brand-heading">Time to work</h1>
+            <form onsubmit="return upload();">
+              <select id="type">
+                <option value="tasks/">Task</option>
+                <option value="actions/">Action</option>
+              </select>
+              <input type="text" name="name" id="name" placeholder="name"/><br/>
+              <textarea name="code" rows="10" cols="50" id="code" placeholder="Write yo code"></textarea><br/>
+              <button type="submit">Deploy</button>
+            </form>
+            <p class="intro-text" id="message"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script type="text/javascript">
+
+    function upload (event) {
+      var name = document.getElementById('name').value;
+      var type = document.getElementById('type').value;
+      var code = document.getElementById('code').value;
+
+      var client = new ActionheroClient();
+
+      if(type && code) {
+        var filename = type + task + ".js";
+
+          client.action('hotpatch', {
+            filename: filename, 
+            contents: btoa(code)
+          }, function(err, data){
+              if(err) {
+                console.error(err);
+              } else {
+                console.log('patched', err, data);
+                client.action('hotreload', {}, function(err, data){
+                  if(err) {
+                    console.error(err);
+                  } else {
+                    done("Deployed!")
+                  }
+                });
+              }
+          });
+      }
+
+      return false;
+    }
+
+    function done(message) {
+      var $message = document.getElementById('message');
+      $message.innerHTML = message;
+
+      setTimeout(function () {
+        $message.innerHTML = "";
+      }, 3000)
+    }
+    done("testing");
+
+  </script>
+  </body>
+</html>
