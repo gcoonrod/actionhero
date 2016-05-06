@@ -25,13 +25,14 @@ exports.action = {
     const params = {filename: data.params.filename, contents: data.params.contents};
 
     api.redis.doCluster('api.eval', params, null, ()=>{
-      if(!api.config.general.developmentMode){
+      if(!api.config.general.developmentMode && process.send){
         process.send({
           hotreload: true
         }, (err)=>{
           next(err);
         });
       } else {
+        error = new Error("Cannot hotpatch for various sundry reasons");
         next(error);
       }
     });

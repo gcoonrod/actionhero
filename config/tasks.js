@@ -1,5 +1,9 @@
 exports['default'] = {
   tasks: function(api){
+    var minTaskProcessors = 1;
+    if(typeof process.env.DISABLE_TASKS != 'undefined') {
+      minTaskProcessors = 0;
+    }
     return {
       // Should this node run a scheduler to promote delayed tasks?
       scheduler: true,
@@ -32,7 +36,7 @@ exports['default'] = {
       timeout: 5000,
       // at minimum, how many parallel taskProcessors should this node spawn?
       // (have number > 0 to enable, and < 1 to disable)
-      minTaskProcessors: 1,
+      minTaskProcessors: 2,
       // at maximum, how many parallel taskProcessors should this node spawn?
       maxTaskProcessors: 2,
       // how often should we check the event loop to spawn more taskProcessors?

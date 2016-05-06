@@ -14,12 +14,17 @@
     .brand-heading {
       font-size: 3em;
     }
+
+    #editor {
+        height: 30em;
+    }
+
     </style>
     <link rel="icon" href="/public/favicon.ico">
     <title>actionhero.js</title>
 
     <script src="/public/javascript/actionheroClient.js"></script>
-
+<script src="javascript/ace.js" type="text/javascript" charset="utf-8"></script>
   </head>
 
   <body>
@@ -46,7 +51,25 @@
                 <option value="actions/">Action</option>
               </select>
               <input type="text" name="name" id="name" placeholder="name"/><br/>
-              <textarea name="code" rows="10" cols="50" id="code" placeholder="Write yo code"></textarea><br/>
+              <pre id="editor">
+'use strict';
+
+exports.task = {
+  name:          'hello',
+  description:   'hello',
+  frequency:     10000,
+  queue:         'default',
+  plugins:       [],
+  pluginOptions: {},
+
+  run: function(api, params, next){
+    api.log("hello!");
+    next();
+  }
+};
+
+              </pre>
+
               <button type="submit">Deploy</button>
             </form>
             
@@ -59,10 +82,14 @@
 
   <script type="text/javascript">
 
+  var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/javascript");
+
     function upload (event) {
       var name = document.getElementById('name').value;
       var type = document.getElementById('type').value;
-      var code = document.getElementById('code').value;
+      var code = editor.getValue();
 
       var client = new ActionheroClient();
 
@@ -109,5 +136,6 @@
     }
 
   </script>
+
   </body>
 </html>
