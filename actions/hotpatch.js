@@ -22,8 +22,18 @@ exports.action = {
   run: function(api, data, next) {
     let error = null;
 
-    api.redis.doCluster('api.eval', {filename: data.params.filename, contents: data.params.contents});
+    const params = {filename: data.params.filename, contents: data.params.contents};
 
-    next(error);
+    api.redis.doCluster('api.eval', params, null, ()=>{
+      if(!api.config.general.developmentMode){
+        process.send({
+          hotreload: true
+        }, (err)=>{
+          next(err);
+        });
+      } else {
+        next(error);
+      }
+    });
   }
 };
