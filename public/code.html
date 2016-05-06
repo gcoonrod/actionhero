@@ -10,6 +10,10 @@
       color: #000;
       overflow: visible;
     }
+
+    .brand-heading {
+      font-size: 3em;
+    }
     </style>
     <link rel="icon" href="/public/favicon.ico">
     <title>actionhero.js</title>
@@ -25,8 +29,18 @@
       <div class="container">
         <div class="row">
           <div class="col-md-8 col-md-offset-2">
-            <h1 class="brand-heading">Time to work</h1>
+
+            <h1 class="brand-heading">npm yo installs</h1>
+            <form onsubmit="return install();">
+              <p class="intro-text" id="npm-message"></p>
+              <input type="text" name="package" id="package" placeholder="package"/>
+              
+              <button type="submit">Install</button>
+            </form>
+
+            <h1 class="brand-heading">Deploy yo Code</h1>
             <form onsubmit="return upload();">
+              <p class="intro-text" id="code-message"></p>
               <select id="type">
                 <option value="tasks/">Task</option>
                 <option value="actions/">Action</option>
@@ -35,7 +49,8 @@
               <textarea name="code" rows="10" cols="50" id="code" placeholder="Write yo code"></textarea><br/>
               <button type="submit">Deploy</button>
             </form>
-            <p class="intro-text" id="message"></p>
+            
+
           </div>
         </div>
       </div>
@@ -52,39 +67,46 @@
       var client = new ActionheroClient();
 
       if(type && code) {
-        var filename = type + task + ".js";
+        var filename = type + name + ".js";
 
           client.action('hotpatch', {
             filename: filename, 
             contents: btoa(code)
-          }, function(err, data){
-              if(err) {
-                console.error(err);
-              } else {
-                console.log('patched', err, data);
-                client.action('hotreload', {}, function(err, data){
-                  if(err) {
-                    console.error(err);
-                  } else {
-                    done("Deployed!")
-                  }
-                });
-              }
+          }, function(data){
+              console.log("Deployed");
+              done("Deployed!", 'code-message');
           });
       }
 
       return false;
     }
 
-    function done(message) {
-      var $message = document.getElementById('message');
+    function install (event) {
+      var pkg = document.getElementById('package').value;
+      
+      var client = new ActionheroClient();
+
+      if(pkg) {
+
+          client.action('npm', {
+            "package": pkg, 
+          }, function(data){
+              console.log("Installed");
+              done("Installed!", 'npm-message');
+          });
+      }
+
+      return false;
+    }
+
+    function done(message, id) {
+      var $message = document.getElementById(id);
       $message.innerHTML = message;
 
       setTimeout(function () {
         $message.innerHTML = "";
-      }, 3000)
+      }, 1000)
     }
-    done("testing");
 
   </script>
   </body>
